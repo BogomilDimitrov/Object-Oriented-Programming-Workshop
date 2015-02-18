@@ -3,75 +3,79 @@ package game;
 import contracts.Updatable;
 import gfx.Assets;
 import input.InputHandler;
-import states.GameState;
-import states.State;
-import states.StateManager;
+import states.*;
 
 import java.awt.*;
 import java.awt.image.BufferStrategy;
 
 public class GameEngine implements Runnable, Updatable{
+    public static final int DEFAULT_GAME_WIDTH = 800;
+    public static final int DEFAULT_GAME_HEIGHT = 600;
 
-    private Thread thread;
+
+    private Thread mainThread;
     private boolean isRunning;
 
+    private String gameTitle;
+    private int gameWidth;
+    private int gameHeight;
     private GameWindow display;
-
-    private String title;
-    private int width, height;
-
-    private Graphics g;
-    private BufferStrategy bs;
     public static InputHandler inputHandler;
 
-    private State currentState;
+    private Graphics graphics;
+    private BufferStrategy bs;
 
-    public GameEngine(String title, int width, int height) {
-        this.title = title;
-        this.width = width;
-        this.height = height;
+    //States
+    private State gameState;
 
+    public GameEngine (String title) {
+        this.gameTitle = title;
+        this.setGameWidth(DEFAULT_GAME_WIDTH);
+        this.setGameHeight(DEFAULT_GAME_HEIGHT);
     }
 
     private void init() {
-        this.display = new GameWindow(this.title, this.width, this.height);
+        //init JFrame and Canvas
+        this.display = new GameWindow(this.gameTitle, this.getGameWidth(), this.getGameHeight());
+
         this.display.getCanvas().createBufferStrategy(2);
         this.bs = this.display.getCanvas().getBufferStrategy();
-        this.g = this.bs.getDrawGraphics();
+
+        inputHandler = new InputHandler(this.display.getFrame());
+
+        //init States
+        this.gameState = new GameState(this);
+        StateManager.setState(this.gameState);
+
+        //init Assets
         Assets.init();
-
-        this.inputHandler = new InputHandler(this.display.getFrame());
-
-        this.currentState = new GameState(this);
-        StateManager.setCurrentState(this.currentState);
     }
 
     @Override
     public void tick() {
-        if (StateManager.getCurrentState() != null) {
-            StateManager.getCurrentState().tick();
+        if (StateManager.getState() != null) {
+            StateManager.getState().tick();
         }
     }
 
     @Override
     public void render(Graphics g) {
         g = this.bs.getDrawGraphics();
+        g.clearRect(0, 0, this.getGameWidth(), this.getGameHeight());
+        //Start Draw
 
-        g.clearRect(0, 0, this.width, this.height);
-        //Start Drawing
-
-        if (StateManager.getCurrentState() != null) {
-            StateManager.getCurrentState().render(g);
+        if (StateManager.getState() != null) {
+            StateManager.getState().render(g);
         }
 
-        //END Drawing
+        //End Draw
         this.bs.show();
         g.dispose();
     }
 
     @Override
     public void run() {
-        init();
+        this.init();
 
         while (isRunning) {
             try {
@@ -79,37 +83,53 @@ public class GameEngine implements Runnable, Updatable{
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
-            tick();
-            render(this.g);
+            this.tick();
+            this.render(this.graphics);
         }
 
-        stop();
+        this.stop();
     }
 
-    public synchronized void start() {
-        if (this.thread != null) {
+    //Removed synchronized because there is no other thread that
+    //can call the start method of the main thread
+    public void start() {
+        if (this.isRunning) {
             return;
         }
-
         this.isRunning = true;
-        this.thread = new Thread(this);
-        this.thread.start();
+
+        this.mainThread = new Thread(this);
+        this.mainThread.start();
     }
 
-    public synchronized void stop() {
-        if (this.thread == null) {
+    //Removed synchronized because there is no other thread that
+    //can call the stop method of the main thread
+    public void stop() {
+        if (!this.isRunning) {
             return;
         }
-
         this.isRunning = false;
 
         try {
-            this.thread.join();
+            this.mainThread.join();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
 
+    public int getGameWidth() {
+        return this.gameWidth;
+    }
 
+    public void setGameWidth(int gameWidth) {
+        this.gameWidth = gameWidth;
+    }
+
+    public int getGameHeight() {
+        return this.gameHeight;
+    }
+
+    public void setGameHeight(int gameHeight) {
+        this.gameHeight = gameHeight;
+    }
 }

@@ -5,11 +5,16 @@ import javax.swing.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
-public class InputHandler implements KeyListener {
-    public static boolean up, down, left, right, space;
+public class InputHandler implements KeyListener{
+    public boolean up, down, left, right, spacebar;
 
     public InputHandler(JFrame frame) {
         frame.addKeyListener(this);
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+
     }
 
     @Override
@@ -17,19 +22,22 @@ public class InputHandler implements KeyListener {
         int keyCode = e.getKeyCode();
 
         if (keyCode == KeyEvent.VK_UP) {
-            up = true;
+            this.up = true;
         }
         if (keyCode == KeyEvent.VK_DOWN) {
-            down = true;
+            this.down = true;
         }
         if (keyCode == KeyEvent.VK_LEFT) {
-            left = true;
+            this.left = true;
         }
         if (keyCode == KeyEvent.VK_RIGHT) {
-            right = true;
+            this.right = true;
         }
         if (keyCode == KeyEvent.VK_SPACE) {
-            space = true;
+            this.spacebar = true;
+        }
+        if (keyCode == KeyEvent.VK_ESCAPE) {
+            System.exit(0);
         }
     }
 
@@ -38,24 +46,19 @@ public class InputHandler implements KeyListener {
         int keyCode = e.getKeyCode();
 
         if (keyCode == KeyEvent.VK_UP) {
-            up = false;
+            this.up = false;
         }
         if (keyCode == KeyEvent.VK_DOWN) {
-            down = false;
+            this.down = false;
         }
         if (keyCode == KeyEvent.VK_LEFT) {
-            left = false;
+            this.left = false;
         }
         if (keyCode == KeyEvent.VK_RIGHT) {
-            right = false;
+            this.right = false;
         }
         if (keyCode == KeyEvent.VK_SPACE) {
-            space = false;
+            this.spacebar = false;
         }
-    }
-
-    @Override
-    public void keyTyped(KeyEvent e) {
-
     }
 }

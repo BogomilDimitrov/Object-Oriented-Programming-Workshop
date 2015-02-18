@@ -3,26 +3,19 @@ package entities.creatures;
 import entities.Entity;
 
 public abstract class Creature extends Entity {
-    private final int DEFAULT_HEALTH = 100;
+    public static final int DEFAULT_HEALTH = 100;
+    public static final int DEFAULT_VELOCITY = 3;
 
     private int health;
-    private int creatureDamage;
 
     public Creature(int x, int y, int width, int height) {
         super(x, y, width, height);
         this.setHealth(DEFAULT_HEALTH);
-    }
-
-    public int getCreatureDamage() {
-        return creatureDamage;
-    }
-
-    public void setCreatureDamage(int creatureDamage) {
-        this.creatureDamage = creatureDamage;
+        this.velocity = DEFAULT_VELOCITY;
     }
 
     public int getHealth() {
-        return health;
+        return this.health;
     }
 
     public void setHealth(int health) {

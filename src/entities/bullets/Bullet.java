@@ -1,48 +1,34 @@
 package entities.bullets;
 
-
-import contracts.Intersectable;
 import entities.Entity;
-import gfx.Assets;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-public class Bullet extends Entity implements Intersectable{
 
-    private BufferedImage image;
+public class Bullet extends Entity {
+    private BufferedImage img;
+    private int bulletVelocity;
 
-    private int velocityModifier;
-
-    public Bullet(BulletType type, int x, int y) {
-        super(x, y, 10, 28);
-        init(type);
+    public Bullet(BufferedImage img, int x, int y, int width, int height, int velocityModifier) {
+        super(x, y, width, height);
+        this.bulletVelocity = 3 * velocityModifier;
+        this.img = img;
     }
 
-    private void init(BulletType type) {
-        if (type == BulletType.Enemy) {
-            this.image = Assets.enemyBullet;
-            this.velocityModifier = 1;
-        } else {
-            this.image = Assets.playerBullet;
-            this.velocityModifier = -1;
-        }
+    @Override
+    public boolean intersect(Rectangle enemyBoundingBox) {
+        return this.boundingBox.intersects(enemyBoundingBox);
     }
 
     @Override
     public void tick() {
-        this.y += this.getVelocity() * this.velocityModifier;
-        this.getBoundingBox().setBounds(this.x, this.y, this.width, this.height);
+        this.y -= this.bulletVelocity;
+        this.boundingBox.setBounds(this.x, this.y, this.width, this.height);
     }
 
     @Override
     public void render(Graphics g) {
-        g.drawImage(this.image, this.x, this.y, this.width, this.height, null);
-        g.drawRect((int)this.getBoundingBox().getX(), (int)this.getBoundingBox().getY(), (int)this.getBoundingBox().getWidth(), (int)this.getBoundingBox().getHeight());
-    }
-
-    @Override
-    public boolean intersects(Rectangle rect) {
-        return this.getBoundingBox().contains(rect);
+        g.drawImage(this.img, this.x, this.y, this.width, this.height, null);
     }
 }

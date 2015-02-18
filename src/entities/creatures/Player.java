@@ -1,103 +1,113 @@
 package entities.creatures;
 
-import contracts.Intersectable;
 import contracts.Shooting;
 import entities.bullets.Bullet;
-import entities.bullets.BulletType;
-import game.GameEngine;
+import enums.PlayerMovement;
 import gfx.Assets;
 
 import java.awt.*;
 import java.util.ArrayList;
 
-public class Player extends Creature implements Intersectable, Shooting {
-    private final int DEFAULT_DAMAGE = 10;
+public class Player extends Creature implements Shooting {
+    private final int DEFAULT_PLAYER_DAMAGE = 10;
 
-    private boolean isMovingLeft;
-    private boolean isMovingRight;
+    private ArrayList<Bullet> playerBullets;
+    private int playerDamage;
+
+
+    private boolean movingLeft;
+    private boolean movingRight;
     private boolean hasShot;
-
-    private ArrayList<Bullet> bullets;
-
 
     public Player(int x, int y, int width, int height) {
         super(x, y, width, height);
-        this.setCreatureDamage(DEFAULT_DAMAGE);
-        this.setBullets(new ArrayList<Bullet>());
+        this.hasShot = false;
+        this.setPlayerDamage(DEFAULT_PLAYER_DAMAGE);
+        setPlayerBullets(new ArrayList<>());
     }
 
     @Override
     public void tick() {
-        if (GameEngine.inputHandler.up) {
-            this.y -= this.getVelocity();
-        } else if(GameEngine.inputHandler.down) {
-            this.y += this.getVelocity();
-        }
+        this.getBoundingBox().setBounds(this.x+10, this.y+10, this.width-10, this.height-10);
+        playerBullets.forEach(entities.bullets.Bullet::tick);
 
-        if (GameEngine.inputHandler.left) {
-            this.x -= this.getVelocity();
-            this.isMovingLeft = true;
-            this.isMovingRight = false;
-        } else if(GameEngine.inputHandler.right) {
-            this.x += this.getVelocity();
-            this.isMovingRight = true;
-            this.isMovingLeft = false;
-        } else {
-            this.isMovingLeft = false;
-            this.isMovingRight = false;
-        }
-
-        this.getBoundingBox().setBounds(this.x + 20,
-                this.y + 20,
-                this.width - 40,
-                this.height - 40);
-
-        if (GameEngine.inputHandler.space && !hasShot) {
-            shoot();
-            hasShot = true;
-        } else if (!GameEngine.inputHandler.space) {
-            hasShot = false;
-        }
-
-        for (Bullet bullet : getBullets()) {
-            bullet.tick();
-        }
     }
 
-    @Override
-    public void render(Graphics g) {
-        if (isMovingLeft) {
-            g.drawImage(Assets.player.crop(200, 0, 100, 100), this.x, this.y, null);
-        } else if (isMovingRight) {
-            g.drawImage(Assets.player.crop(200, 100, 100, 100), this.x, this.y, null);
-        } else {
-            g.drawImage(Assets.player.crop(0, 0, 100, 100), this.x, this.y, null);
+    public void move(PlayerMovement playerMovement) {
+        switch (playerMovement) {
+            case Up: {
+                this.y -= this.velocity;
+                break;
+            }
+            case Down: {
+                this.y += this.velocity;
+                break;
+            }
+            case Left: {
+                this.x -= this.velocity;
+                this.movingRight = false;
+                this.movingLeft = true;
+                break;
+            }
+            case Right: {
+                this.x += this.velocity;
+                this.movingLeft = false;
+                this.movingRight = true;
+                break;
+            }
+            case Iddle: {
+                this.movingRight = false;
+                this.movingLeft = false;
+                break;
+            }
         }
-
-        for (Bullet bullet : getBullets()) {
-            bullet.render(g);
-        }
-
-        g.setColor(Color.red);
-        g.drawRect((int) this.getBoundingBox().getX(), (int) this.getBoundingBox().getY(),
-                (int) this.getBoundingBox().getWidth(), (int) this.getBoundingBox().getHeight());
-    }
-
-    @Override
-    public boolean intersects(Rectangle rect) {
-        return this.getBoundingBox().contains(rect);
     }
 
     @Override
     public void shoot() {
-        this.getBullets().add(new Bullet(BulletType.Player, this.x + this.width / 2, this.y));
+        this.getPlayerBullets().add(new Bullet(Assets.playerBullet, this.x + this.width / 2 - 17 / 4, this.y, 17 / 2, 47 / 2, 1));
     }
 
-    public ArrayList<Bullet> getBullets() {
-        return bullets;
+    @Override
+    public void render(Graphics g) {
+        if (this.movingLeft) {
+            g.drawImage(Assets.playerSprite.crop(this.width * 2, 0, this.width, this.height), this.x, this.y, this.width, this.height, null);
+        } else if (this.movingRight) {
+            g.drawImage(Assets.playerSprite.crop(this.width*2,this.height,this.width,this.height), this.x, this.y, this.width, this.height, null);
+        } else {
+            g.drawImage(Assets.playerSprite.crop(0,this.height,this.width,this.height), this.x, this.y, this.width, this.height, null);
+        }
+        for (Bullet playerBullet : playerBullets) {
+            playerBullet.render(g);
+        }
     }
 
-    public void setBullets(ArrayList<Bullet> bullets) {
-        this.bullets = bullets;
+    @Override
+    public boolean intersect(Rectangle enemyBoundingBox) {
+        return this.getBoundingBox().contains(enemyBoundingBox);
     }
-}
+
+    public int getPlayerDamage() {
+        return this.playerDamage;
+    }
+
+    public void setPlayerDamage(int playerDamage) {
+        this.playerDamage = playerDamage;
+    }
+
+    public ArrayList<Bullet> getPlayerBullets() {
+        return this.playerBullets;
+    }
+
+    public void setPlayerBullets(ArrayList<Bullet> playerBullets) {
+        this.playerBullets = playerBullets;
+    }
+
+    public boolean getHasShot() {
+        return this.hasShot;
+    }
+
+    public void setHasShot(boolean hasShot) {
+        this.hasShot = hasShot;
+    }
+ }

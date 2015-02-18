@@ -1,6 +1,5 @@
 package contracts;
 
-
 public interface Shooting {
-    public void shoot();
+    public abstract void shoot();
 }

@@ -1,39 +1,38 @@
 package entities;
 
-
+import contracts.Intersectable;
 import contracts.Updatable;
 
 import java.awt.*;
 
-public abstract class Entity implements Updatable {
+public abstract class Entity implements Updatable, Intersectable {
     protected int x, y;
     protected int width, height;
-    private int velocity;
-
-    private Rectangle boundingBox;
+    protected Rectangle boundingBox;
+    protected int velocity;
 
     public Entity(int x, int y, int width, int height) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
-        this.velocity = 3;
+        this.velocity = 2;
         this.setBoundingBox(new Rectangle(this.x, this.y, this.width, this.height));
     }
 
-    public int getVelocity() {
-        return velocity;
-    }
-
-    public void setVelocity(int velocity) {
-        this.velocity = velocity;
-    }
-
     public Rectangle getBoundingBox() {
-        return boundingBox;
+        return this.boundingBox;
     }
 
     public void setBoundingBox(Rectangle boundingBox) {
         this.boundingBox = boundingBox;
+    }
+
+    public int getVelocity() {
+        return this.velocity;
+    }
+
+    public void setVelocity(int velocity) {
+        this.velocity = velocity;
     }
 }

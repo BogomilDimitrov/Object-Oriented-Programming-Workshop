@@ -3,55 +3,48 @@ package game;
 import javax.swing.*;
 import java.awt.*;
 
-public class GameWindow extends JFrame {
+public class GameWindow {
     private JFrame frame;
     private Canvas canvas;
 
     private String title;
-    private int width, height;
+    private Dimension gameDim;
 
-    public GameWindow(String title, int width, int height){
+    public GameWindow(String title, int width, int height) {
         this.title = title;
-        this.width = width;
-        this.height = height;
+        this.gameDim = new Dimension(width, height);
 
         initFrame();
-        initCanvas();
-        this.getFrame().add(this.getCanvas());
-        this.getFrame().pack();
-    }
-
-    private void initCanvas() {
-        this.setCanvas(new Canvas());
-        this.getCanvas().setPreferredSize(new Dimension(this.width, this.height));
-        this.getCanvas().setMinimumSize(new Dimension(this.width, this.height));
-        this.getCanvas().setMaximumSize(new Dimension(this.width, this.height));
-        this.getCanvas().setFocusable(false);
     }
 
     private void initFrame() {
-        this.setFrame(new JFrame(this.title));
-        this.getFrame().setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        this.getFrame().setSize(this.width, this.height);
-        this.getFrame().setVisible(true);
-        this.getFrame().setFocusable(true);
-        this.getFrame().setResizable(false);
-        this.getFrame().setLocationRelativeTo(null);
+        this.frame = new JFrame(this.title);
+        this.frame.setSize(this.gameDim);
+        this.frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        this.frame.setResizable(false);
+        this.frame.setVisible(true);
+        this.frame.setFocusable(true);
+        this.frame.setLocationRelativeTo(null);
+
+        this.initCanvas();
+
+        this.frame.add(canvas);
+        this.frame.pack();
     }
 
-    public JFrame getFrame() {
-        return frame;
-    }
-
-    public void setFrame(JFrame frame) {
-        this.frame = frame;
+    private void initCanvas() {
+        this.canvas = new Canvas();
+        this.canvas.setPreferredSize(this.gameDim);
+        this.canvas.setMaximumSize(this.gameDim);
+        this.canvas.setMinimumSize(this.gameDim);
+        this.canvas.setFocusable(false);
     }
 
     public Canvas getCanvas() {
-        return canvas;
+        return this.canvas;
     }
 
-    public void setCanvas(Canvas canvas) {
-        this.canvas = canvas;
+    public JFrame getFrame() {
+        return this.frame;
     }
 }

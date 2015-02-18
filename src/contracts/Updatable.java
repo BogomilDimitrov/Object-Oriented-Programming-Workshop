@@ -3,6 +3,6 @@ package contracts;
 import java.awt.*;
 
 public interface Updatable {
-    public void tick();
-    public void render(Graphics g);
+    public abstract void tick();
+    public abstract void render(Graphics g);
 }
